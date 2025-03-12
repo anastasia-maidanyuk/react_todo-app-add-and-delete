@@ -8,6 +8,8 @@ import { getTodos, addTodo, deleteTodo, updateTodo } from './api/todos';
 import TodoList from './components/TodoList';
 import Footer from './components/Footer';
 import Header from './components/Header';
+import { FilterType } from './types/FilterType';
+import classNames from 'classnames';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -15,12 +17,10 @@ export const App: React.FC = () => {
   const [newTodo, setNewTodo] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeFilter, setActiveFilter] = useState<FilterType>(FilterType.All);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Focus the input field as soon as the component is mounted
   useEffect(() => {
-    // Using setTimeout to ensure DOM is fully rendered
     const timer = setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus();
@@ -47,7 +47,6 @@ export const App: React.FC = () => {
       setError('Unable to load todos');
     } finally {
       setLoading(false);
-      // Focus input after loading todos
       focusInput();
     }
   };
@@ -71,7 +70,6 @@ export const App: React.FC = () => {
     try {
       setLoading(true);
 
-      // Create temp todo to show loader
       const temporaryTodo: Todo = {
         id: 0,
         userId: USER_ID,
@@ -93,7 +91,6 @@ export const App: React.FC = () => {
       setLoading(false);
       setTempTodo(null);
 
-      // Focus the input field after adding
       focusInput();
     }
   };
@@ -147,17 +144,14 @@ export const App: React.FC = () => {
   };
 
   const handleClearCompleted = async () => {
-    // Get all completed todos
     const completedTodos = todos.filter(todo => todo.completed);
 
-    // Mark them as loading
     setTodos(prevTodos =>
       prevTodos.map(todo =>
         todo.completed ? { ...todo, isLoading: true } : todo,
       ),
     );
 
-    // Delete all completed todos in parallel
     const deletePromises = completedTodos.map(todo =>
       deleteTodo(todo.id)
         .then(() => ({ id: todo.id, success: true }))
@@ -166,16 +160,13 @@ export const App: React.FC = () => {
 
     const results = await Promise.all(deletePromises);
 
-    // Handle successes and failures
     setTodos(prevTodos => {
       let updatedTodos = [...prevTodos];
 
       results.forEach(result => {
         if (result.success) {
-          // Remove successfully deleted todos
           updatedTodos = updatedTodos.filter(todo => todo.id !== result.id);
         } else {
-          // Mark failed deletions as not loading
           updatedTodos = updatedTodos.map(todo =>
             todo.id === result.id ? { ...todo, isLoading: false } : todo,
           );
@@ -191,9 +182,9 @@ export const App: React.FC = () => {
 
   const filteredTodos = () => {
     switch (activeFilter) {
-      case 'Active':
+      case FilterType.Active:
         return todos.filter(todo => !todo.completed);
-      case 'Completed':
+      case FilterType.Completed:
         return todos.filter(todo => todo.completed);
       default:
         return todos;
@@ -251,7 +242,9 @@ export const App: React.FC = () => {
 
       <div
         data-cy="ErrorNotification"
-        className={`notification is-danger ${error === null ? 'hidden' : ''}`}
+        className={classNames('notification', 'is-danger', {
+          hidden: error === null,
+        })}
       >
         <button
           data-cy="HideErrorButton"

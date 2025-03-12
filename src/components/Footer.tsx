@@ -1,10 +1,11 @@
 import React from 'react';
 import { Todo } from '../types/Todo';
+import { FilterType } from '../types/FilterType';
 
 interface FooterProps {
   todos: Todo[];
-  activeFilter: string;
-  setActiveFilter: React.Dispatch<React.SetStateAction<string>>;
+  activeFilter: FilterType;
+  setActiveFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   handleClearCompleted: () => void;
 }
 
@@ -27,30 +28,17 @@ const Footer: React.FC<FooterProps> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={`filter__link ${activeFilter === 'All' ? 'selected' : ''}`}
-          data-cy="FilterLinkAll"
-          onClick={() => setActiveFilter('All')}
-        >
-          All
-        </a>
-        <a
-          href="#/active"
-          className={`filter__link ${activeFilter === 'Active' ? 'selected' : ''}`}
-          data-cy="FilterLinkActive"
-          onClick={() => setActiveFilter('Active')}
-        >
-          Active
-        </a>
-        <a
-          href="#/completed"
-          className={`filter__link ${activeFilter === 'Completed' ? 'selected' : ''}`}
-          data-cy="FilterLinkCompleted"
-          onClick={() => setActiveFilter('Completed')}
-        >
-          Completed
-        </a>
+        {Object.values(FilterType).map(filter => (
+          <a
+            key={filter}
+            href={`#/${filter.toLowerCase()}`}
+            className={`filter__link ${activeFilter === filter ? 'selected' : ''}`}
+            data-cy={`FilterLink${filter}`}
+            onClick={() => setActiveFilter(filter)}
+          >
+            {filter}
+          </a>
+        ))}
       </nav>
 
       <button

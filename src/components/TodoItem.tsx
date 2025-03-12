@@ -8,14 +8,14 @@ interface TodoItemProps {
 }
 
 const TodoItem: React.FC<TodoItemProps> = ({
-  todo,
+  todo: { id, title, completed, isLoading },
   handleDeleteTodo,
   handleToggleTodo,
 }) => {
-  const todoId = `todo-${todo.id}`;
+  const todoId = `todo-${id}`;
 
   return (
-    <div className={`todo ${todo.completed ? 'completed' : ''}`} data-cy="Todo">
+    <div className={`todo ${completed ? 'completed' : ''}`} data-cy="Todo">
       <label className="todo__status-label" htmlFor={todoId}>
         {' '}
         <input
@@ -23,28 +23,35 @@ const TodoItem: React.FC<TodoItemProps> = ({
           type="checkbox"
           className="todo__status"
           id={todoId}
-          checked={todo.completed}
-          onChange={() => handleToggleTodo(todo)}
-          disabled={todo.isLoading}
+          checked={completed}
+          onChange={() =>
+            handleToggleTodo({
+              id,
+              title,
+              completed,
+              isLoading,
+              userId: 0,
+            })
+          }
+          disabled={isLoading}
         />
       </label>
       <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
+        {title}
       </span>
       <button
         type="button"
         className="todo__remove"
         data-cy="TodoDelete"
-        onClick={() => handleDeleteTodo(todo.id)}
-        disabled={todo.isLoading}
+        onClick={() => handleDeleteTodo(id)}
+        disabled={isLoading}
       >
         ×
       </button>
 
       <div
         data-cy="TodoLoader"
-        className={`modal overlay ${todo.isLoading ? 'is-active' : ''}`}
-        style={{ display: todo.isLoading ? 'block' : 'none' }}
+        className={`modal overlay ${isLoading ? 'is-active' : ''}`}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

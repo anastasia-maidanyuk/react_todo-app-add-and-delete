@@ -21,7 +21,6 @@ const Header: React.FC<HeaderProps> = ({
   inputRef,
 }) => {
   useEffect(() => {
-    // Переконайтесь, що inputRef існує, і не виконується операція завантаження
     if (inputRef.current && !loading) {
       inputRef.current.focus();
     }
